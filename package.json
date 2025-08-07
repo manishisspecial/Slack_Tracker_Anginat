@@ -2,9 +2,9 @@
   "name": "slack-time-tracker",
   "version": "1.0.0",
   "description": "Track time using Slack presence and status",
-  "main": "runner.js",
+  "main": "web-server.js",
   "scripts": {
-    "start": "node runner.js start",
+    "start": "node web-server.js web",
     "multi-start": "node multi-user-runner.js start",
     "multi-status": "node multi-user-runner.js status",
     "multi-report": "node multi-user-runner.js report",
