@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Time Tracker - All Users Dashboard</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--accent-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        #connectionStatus {
+            font-size: 0.875rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Advanced Date Picker Styles */
+        .date-picker-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-right: 1rem;
+            min-width: 0;
+            flex-shrink: 1;
+        }
+
+        .date-picker {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .date-picker:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .date-input {
+            border: none;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+            min-width: 140px;
+        }
+
+        .date-picker-btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .date-picker-btn:hover {
+            background: var(--accent-secondary);
+        }
+
+        .quick-date-buttons {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .quick-date-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-date-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .quick-date-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Modern Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        /* Enhanced Card Animations */
+        .stat-card, .data-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Loading Shimmer Effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Advanced Analytics Styles */
+        .analytics-section {
+            margin-bottom: 2rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .analytics-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .analytics-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analytics-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .trend-chart, .pattern-chart {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            color: var(--text-secondary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            background: var(--bg-primary);
+            transform: scale(1.02);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .insights-feed {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            background: var(--bg-primary);
+            transform: translateX(5px);
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .insight-icon.success { background: var(--success); }
+        .insight-icon.warning { background: var(--warning); }
+        .insight-icon.info { background: var(--accent-primary); }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-text {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .welcome-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--accent-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .team-overview {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .overview-card {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .overview-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .user-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 0.875rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .user-details h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-away {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-offline {
+            background: #6b7280;
+            color: white;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .recent-activity {
+            margin-top: 1rem;
+        }
+
+        .activity-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .data-card {
+            background: var(--bg-secondary);
+            padding: 1.25rem;
+            border-radius: 10px;
+        }
+
+        .data-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .data-list {
+            list-style: none;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .analytics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+            
+            .users-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-picker-container {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .container {
+                padding: 0 0.5rem 1rem;
+            }
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .team-insights {
+            margin-top: 2rem;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .insight-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .insight-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .insight-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 0 1rem 1rem;
+            }
+
+            .header {
+                padding: 1rem 0;
+                margin-bottom: 1rem;
+            }
+
+            .team-overview {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .user-card {
+                padding: 0.75rem;
+            }
+
+            .chart-container {
+                padding: 1rem;
+            }
+
+            .overview-grid {
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span>Slack Time Tracker Pro</span>
+            </a>
+            <div class="header-actions">
+                <!-- Advanced Date Picker -->
+                <div class="date-picker-container">
+                    <div class="date-picker">
+                        <input type="date" id="trackingDate" class="date-input" />
+                        <button class="date-picker-btn" onclick="toggleDatePicker()">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                    <div class="quick-date-buttons">
+                        <button class="quick-date-btn active" data-days="0">Today</button>
+                        <button class="quick-date-btn" data-days="1">Yesterday</button>
+                        <button class="quick-date-btn" data-days="7">Last 7 Days</button>
+                        <button class="quick-date-btn" data-days="30">Last 30 Days</button>
+                    </div>
+                </div>
+                
+                <a href="/individual" class="btn btn-outline">
+                    <i class="fas fa-user"></i> Individual Dashboard
+                </a>
+                <div id="connectionStatus">Connected</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Track Your Team Like a Pro</h1>
+            <p class="welcome-subtitle">Monitor your team's productivity and activity in real-time with intelligent Slack integration.</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="refreshUsers">
+                    <i class="fas fa-sync-alt"></i> Refresh Users
+                </button>
+                <button class="btn btn-primary" id="exportTeamData">
+                    <i class="fas fa-download"></i> Export Team Data
+                </button>
+                <button class="btn btn-primary" id="viewTeamReport">
+                    <i class="fas fa-chart-bar"></i> View Team Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--accent-primary);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-change">+2 today</span>
+                </div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--success);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="stat-change">+1 today</span>
+                </div>
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--warning);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span class="stat-change">+15% today</span>
+                </div>
+                <div class="stat-value" id="totalTime">0h 0m</div>
+                <div class="stat-label">Total Time Today</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--accent-secondary);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="stat-change">+8% efficiency</span>
+                </div>
+                <div class="stat-value" id="avgProductivity">0%</div>
+                <div class="stat-label">Avg Productivity</div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Loading team data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-message" style="display: none;">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+
+        <!-- Users Grid -->
+        <div class="users-grid" id="usersGrid" style="display: none;">
+            <!-- User cards will be populated here -->
+        </div>
+
+
+
+        <!-- Additional Data Sections -->
+        <div class="data-grid">
+            <div class="data-card">
+                <h3 class="data-title">Team Project Breakdown</h3>
+                <div class="data-list" id="teamProjectBreakdown">
+                    <!-- Team project breakdown will be populated here -->
+                </div>
+            </div>
+            
+            <div class="data-card">
+                <h3 class="data-title">Team Daily Summary</h3>
+                <div class="data-list" id="teamDailySummary">
+                    <!-- Team daily summary will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Insights Section -->
+        <div class="team-insights" id="teamInsights" style="display: none;">
+            <h2 class="section-title">Team Insights</h2>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h4>Most Active Projects</h4>
+                    <div class="insight-list" id="topProjects">
+                        <!-- Top projects will be populated here -->
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <h4>Team Performance</h4>
+                    <div class="insight-list" id="teamPerformance">
+                        <!-- Team performance metrics will be populated here -->
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <h4>Recent Activities</h4>
+                    <div class="insight-list" id="recentActivities">
+                        <!-- Recent activities will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Analytics Section -->
+        <div class="analytics-section">
+            <h2 class="section-title">Advanced Analytics</h2>
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Productivity Trends</h3>
+                    <div class="trend-chart" id="productivityTrendChart">
+                        <!-- Productivity trend chart will be here -->
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Team Performance Metrics</h3>
+                    <div class="metrics-grid" id="performanceMetrics">
+                        <!-- Performance metrics will be here -->
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Work Pattern Analysis</h3>
+                    <div class="pattern-chart" id="workPatternChart">
+                        <!-- Work pattern chart will be here -->
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h3 class="analytics-title">Real-time Insights</h3>
+                    <div class="insights-feed" id="realTimeInsights">
+                        <!-- Real-time insights will be here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+            <h2 class="section-title">Recent Team Activity</h2>
+            <div class="timeline-list" id="teamTimelineList">
+                <!-- Team timeline items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshAllData()" title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Global variables
+        let allUsersData = {};
+        let availableUsers = [];
+        let autoRefreshInterval = null; // Track the interval
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Team dashboard initializing...');
+            initializeApp();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                console.log('Auto refresh interval cleared');
+            }
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('Loading users...');
+                await loadUsers();
+                
+                console.log('Loading all users data...');
+                await loadAllUsersData();
+                
+                console.log('Setting up event listeners...');
+                setupEventListeners();
+                
+                console.log('Starting auto refresh...');
+                startAutoRefresh();
+                
+                console.log('Team dashboard initialization complete!');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showError('Error initializing dashboard: ' + error.message);
+            }
+        }
+
+        function setupEventListeners() {
+            try {
+                // Add action button listeners
+                const refreshUsersBtn = document.getElementById('refreshUsers');
+                if (refreshUsersBtn) {
+                    refreshUsersBtn.addEventListener('click', refreshAllData);
+                }
+
+                const exportTeamDataBtn = document.getElementById('exportTeamData');
+                if (exportTeamDataBtn) {
+                    exportTeamDataBtn.addEventListener('click', exportTeamData);
+                }
+
+                const viewTeamReportBtn = document.getElementById('viewTeamReport');
+                if (viewTeamReportBtn) {
+                    viewTeamReportBtn.addEventListener('click', viewTeamReport);
+                }
+
+                // Advanced Date Picker Listeners
+                setupDatePickerListeners();
+
+                console.log('Event listeners setup complete');
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
+            }
+        }
+
+        function setupDatePickerListeners() {
+            try {
+                // Set default date to today
+                const dateInput = document.getElementById('trackingDate');
+                if (dateInput) {
+                    const today = new Date().toISOString().split('T')[0];
+                    dateInput.value = today;
+                    
+                    // Add change listener
+                    dateInput.addEventListener('change', (e) => {
+                        const selectedDate = e.target.value;
+                        updateDataForDate(selectedDate);
+                    });
+                }
+
+                // Quick date buttons
+                const quickDateBtns = document.querySelectorAll('.quick-date-btn');
+                quickDateBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        // Remove active class from all buttons
+                        quickDateBtns.forEach(b => b.classList.remove('active'));
+                        // Add active class to clicked button
+                        e.target.classList.add('active');
+                        
+                        const days = parseInt(e.target.dataset.days);
+                        const targetDate = new Date();
+                        targetDate.setDate(targetDate.getDate() - days);
+                        
+                        const dateString = targetDate.toISOString().split('T')[0];
+                        document.getElementById('trackingDate').value = dateString;
+                        
+                        updateDataForDate(dateString);
+                    });
+                });
+
+                console.log('Date picker listeners setup complete');
+            } catch (error) {
+                console.error('Error setting up date picker listeners:', error);
+            }
+        }
+
+        function toggleDatePicker() {
+            const dateInput = document.getElementById('trackingDate');
+            if (dateInput) {
+                dateInput.showPicker();
+            }
+        }
+
+        function updateDataForDate(dateString) {
+            try {
+                console.log('Updating data for date:', dateString);
+                
+                // Update all data sections for the selected date
+                updateTeamOverviewForDate(dateString);
+                updateTeamInsightsForDate(dateString);
+                updateTeamProjectBreakdownForDate(dateString);
+                updateTeamDailySummaryForDate(dateString);
+                updateTeamTimelineForDate(dateString);
+                updateAdvancedAnalytics(dateString);
+                
+                // Show notification
+                showNotification(`Data updated for ${dateString}`, 'success');
+            } catch (error) {
+                console.error('Error updating data for date:', error);
+                showNotification('Error updating data for selected date', 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                console.log('Fetching users from API...');
+                const response = await fetch('/api/users?t=' + Date.now());
+                if (!response.ok) {
+                    throw new Error(`Users API error: ${response.status}`);
+                }
+                const data = await response.json();
+                availableUsers = data.users || [];
+                console.log('Available users:', availableUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Error loading users: ' + error.message);
+            }
+        }
+
+        async function loadAllUsersData() {
+            try {
+                console.log('Loading data for all users...');
+                
+                // Load data for each user
+                for (const user of availableUsers) {
+                    try {
+                        const response = await fetch(`/api/user/${user.id}/data?t=${Date.now()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            allUsersData[user.id] = {
+                                user: user,
+                                logs: data,
+                                currentStatus: null
+                            };
+                            console.log(`Data loaded for ${user.name}:`, data.length, 'entries');
+                        } else {
+                            console.error(`Failed to load data for ${user.name}:`, response.status);
+                        }
+                    } catch (error) {
+                        console.error(`Error loading data for ${user.name}:`, error);
+                    }
+                }
+
+                // Load current status
+                try {
+                    const statusResponse = await fetch('/api/status');
+                    if (statusResponse.ok) {
+                        const status = await statusResponse.json();
+                        console.log('Overall status loaded:', status);
+                    }
+                } catch (error) {
+                    console.error('Error loading status:', error);
+                }
+
+                updateTeamOverview();
+                updateUserCards();
+                updateTeamInsights();
+                updateTeamProjectBreakdown();
+                updateTeamDailySummary();
+                updateTeamTimeline();
+                updateAdvancedAnalytics(new Date().toISOString().split('T')[0]);
+                
+                // Hide loading, show content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('usersGrid').style.display = 'grid';
+                document.getElementById('chartsSection').style.display = 'grid';
+                document.getElementById('teamInsights').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading all users data:', error);
+                showError('Error loading team data: ' + error.message);
+            }
+        }
+
+        function updateTeamOverview() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                let totalActiveUsers = 0;
+                let totalMinutes = 0;
+                let totalActiveMinutes = 0;
+
+                // Calculate totals from all users
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+
+                    // Check if user is currently active
+                    if (userData.currentStatus && userData.currentStatus.presence === 'active') {
+                        totalActiveUsers++;
+                    }
+
+                    // Calculate time
+                    const userMinutes = todayLogs.reduce((sum, log) => 
+                        sum + (log.duration_from_last || 0), 0
+                    );
+                    totalMinutes += userMinutes;
+
+                    const userActiveMinutes = todayLogs.filter(log => 
+                        log.presence === 'active'
+                    ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                    totalActiveMinutes += userActiveMinutes;
+                });
+
+                // Update overview cards
+                document.getElementById('totalUsers').textContent = availableUsers.length;
+                document.getElementById('activeUsers').textContent = totalActiveUsers;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}m`;
+
+                const avgProductivity = totalMinutes > 0 ? Math.round((totalActiveMinutes / totalMinutes) * 100) : 0;
+                document.getElementById('avgProductivity').textContent = `${avgProductivity}%`;
+
+                console.log('Team overview updated');
+            } catch (error) {
+                console.error('Error updating team overview:', error);
+            }
+        }
+
+        function updateUserCards() {
+            try {
+                const usersGrid = document.getElementById('usersGrid');
+                usersGrid.innerHTML = '';
+
+                availableUsers.forEach(user => {
+                    const userData = allUsersData[user.id];
+                    if (!userData) return;
+
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+
+                    // Calculate user stats
+                    const totalMinutes = todayLogs.reduce((sum, log) => 
+                        sum + (log.duration_from_last || 0), 0
+                    );
+                    const activeMinutes = todayLogs.filter(log => 
+                        log.presence === 'active'
+                    ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+
+                    const totalHours = Math.floor(totalMinutes / 60);
+                    const totalMins = totalMinutes % 60;
+                    const activeHours = Math.floor(activeMinutes / 60);
+                    const activeMins = activeMinutes % 60;
+
+                    // Get current status
+                    const currentStatus = userData.currentStatus?.presence || 'offline';
+                    const statusClass = `status-${currentStatus}`;
+                    const statusText = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+
+                    // Get recent activity
+                    const recentLogs = todayLogs.slice(-3).reverse();
+
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.innerHTML = `
+                        <div class="user-header">
+                            <div class="user-info">
+                                <div class="user-avatar">${user.name.charAt(0)}</div>
+                                <div class="user-details">
+                                    <h3>${user.name}</h3>
+                                    <span class="user-status ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${totalHours}h ${totalMins}m</div>
+                                <div class="stat-label">Total Time</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${activeHours}h ${activeMins}m</div>
+                                <div class="stat-label">Active Time</div>
+                            </div>
+                        </div>
+                        
+                        <div class="recent-activity">
+                            <div class="activity-title">Recent Activity</div>
+                            <ul class="activity-list">
+                                ${recentLogs.length > 0 ? recentLogs.map(log => `
+                                    <li class="activity-item">
+                                        <span class="activity-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                                        <span>${log.presence} - ${log.project || 'General Work'}</span>
+                                    </li>
+                                `).join('') : '<li class="activity-item">No recent activity</li>'}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    usersGrid.appendChild(userCard);
+                });
+
+                console.log('User cards updated');
+            } catch (error) {
+                console.error('Error updating user cards:', error);
+            }
+        }
+
+        async function refreshAllData() {
+            try {
+                console.log('Refreshing all data...');
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('usersGrid').style.display = 'none';
+                document.getElementById('teamInsights').style.display = 'none';
+                
+                await loadAllUsersData();
+                showNotification('Data refreshed successfully!', 'success');
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showNotification('Error refreshing data', 'error');
+            }
+        }
+
+        function startAutoRefresh() {
+            // Clear any existing interval first
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            console.log('Starting auto refresh every 30 seconds...');
+            autoRefreshInterval = setInterval(async () => {
+                console.log('Auto refreshing team data...');
+                try {
+                    await loadAllUsersData();
+                } catch (error) {
+                    console.error('Auto refresh error:', error);
+                }
+            }, 30000);
+        }
+
+        function showNotification(message, type) {
+            try {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+
+                const container = document.getElementById('notificationContainer');
+                if (container) {
+                    container.appendChild(notification);
+
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 100);
+
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 3000);
+                }
+                console.log('Notification shown:', message, type);
+            } catch (error) {
+                console.error('Error showing notification:', error);
+            }
+        }
+
+        async function exportTeamData() {
+            try {
+                console.log('Exporting team data...');
+                const allData = [];
+                
+                // Collect all users' data
+                Object.values(allUsersData).forEach(userData => {
+                    userData.logs.forEach(log => {
+                        allData.push({
+                            ...log,
+                            user: userData.user.name
+                        });
+                    });
+                });
+                
+                const csvContent = convertToCSV(allData);
+                downloadCSV(csvContent, `team_time_export_${Date.now()}.csv`);
+                
+                showNotification('Team data exported successfully!', 'success');
+            } catch (error) {
+                console.error('Error exporting team data:', error);
+                showNotification('Failed to export team data: ' + error.message, 'error');
+            }
+        }
+
+        function convertToCSV(data) {
+            const headers = ['user', 'timestamp', 'presence', 'status_text', 'project', 'duration_from_last'];
+            const csvRows = [headers.join(',')];
+            
+            data.forEach(log => {
+                const row = [
+                    `"${(log.user || '').replace(/"/g, '""')}"`,
+                    log.timestamp,
+                    log.presence,
+                    `"${(log.status_text || '').replace(/"/g, '""')}"`,
+                    `"${log.project.replace(/"/g, '""')}"`,
+                    log.duration_from_last || 0
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function viewTeamReport() {
+            try {
+                console.log('Opening team report...');
+                // For now, just show a notification
+                showNotification('Team report feature coming soon!', 'success');
+            } catch (error) {
+                console.error('Error opening team report:', error);
+                showNotification('Failed to open team report: ' + error.message, 'error');
+            }
+        }
+
+        function showError(message) {
+            const errorState = document.getElementById('errorState');
+            const errorMessage = document.getElementById('errorMessage');
+            const loadingState = document.getElementById('loadingState');
+            
+            errorMessage.textContent = message;
+            errorState.style.display = 'block';
+            loadingState.style.display = 'none';
+            
+            console.error('Error displayed:', message);
+        }
+
+        function updateTeamProjectBreakdown() {
+            try {
+                const teamProjectBreakdown = document.getElementById('teamProjectBreakdown');
+                if (!teamProjectBreakdown) return;
+
+                const today = new Date().toISOString().split('T')[0];
+                const allLogs = [];
+                
+                // Aggregate all users' logs
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+                    allLogs.push(...todayLogs);
+                });
+
+                const projectData = {};
+                allLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                const projects = Object.entries(projectData)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                teamProjectBreakdown.innerHTML = projects.length > 0 ? 
+                    projects.map(([project, minutes]) => {
+                        const hours = Math.floor(minutes / 60);
+                        const mins = minutes % 60;
+                        const percentage = Math.round((minutes / Math.max(...Object.values(projectData))) * 100);
+                        return `
+                            <div class="data-item">
+                                <span>${project}</span>
+                                <span>${hours}h ${mins}m (${percentage}%)</span>
+                            </div>
+                        `;
+                    }).join('') : '<div class="data-item">No project data available</div>';
+            } catch (error) {
+                console.error('Error updating team project breakdown:', error);
+            }
+        }
+
+        function updateTeamDailySummary() {
+            try {
+                const teamDailySummary = document.getElementById('teamDailySummary');
+                if (!teamDailySummary) return;
+
+                const today = new Date().toISOString().split('T')[0];
+                const allLogs = [];
+                
+                // Aggregate all users' logs
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+                    allLogs.push(...todayLogs);
+                });
+
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                const activeHours = Math.floor(activeMinutes / 60);
+                const activeMins = activeMinutes % 60;
+
+                teamDailySummary.innerHTML = `
+                    <div class="data-item">
+                        <span>Total Team Time</span>
+                        <span>${totalHours}h ${totalMins}m</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Active Time</span>
+                        <span>${activeHours}h ${activeMins}m</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Team Productivity</span>
+                        <span>${productivity}%</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Total Activities</span>
+                        <span>${allLogs.length}</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Active Users</span>
+                        <span>${Object.values(allUsersData).filter(userData => 
+                            userData.logs.some(log => 
+                                log.timestamp.startsWith(today) && log.presence === 'active'
+                            )
+                        ).length}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error updating team daily summary:', error);
+            }
+        }
+
+        function updateTeamTimeline() {
+            try {
+                const teamTimelineList = document.getElementById('teamTimelineList');
+                if (!teamTimelineList) return;
+
+                const today = new Date().toISOString().split('T')[0];
+                const recentActivities = [];
+
+                // Collect recent activities from all users
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+                    
+                    const userRecentLogs = todayLogs.slice(-3).reverse();
+                    userRecentLogs.forEach(log => {
+                        recentActivities.push({
+                            user: userData.user.name,
+                            activity: `${log.presence} - ${log.project || 'General Work'}`,
+                            time: new Date(log.timestamp).toLocaleTimeString(),
+                            timestamp: new Date(log.timestamp)
+                        });
+                    });
+                });
+
+                const sortedActivities = recentActivities
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10);
+
+                teamTimelineList.innerHTML = sortedActivities.length > 0 ? 
+                    sortedActivities.map(activity => `
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--text-primary);">
+                                    ${activity.user}
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                    ${activity.activity}
+                                </div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                                ${activity.time}
+                            </div>
+                        </div>
+                    `).join('') : '<div class="timeline-item">No recent team activities</div>';
+            } catch (error) {
+                console.error('Error updating team timeline:', error);
+            }
+        }
+
+        function updateAdvancedAnalytics(dateString) {
+            try {
+                updatePerformanceMetrics(dateString);
+                updateRealTimeInsights(dateString);
+                updateProductivityTrends(dateString);
+                updateWorkPatternAnalysis(dateString);
+            } catch (error) {
+                console.error('Error updating advanced analytics:', error);
+            }
+        }
+
+        function updatePerformanceMetrics(dateString) {
+            try {
+                const performanceMetrics = document.getElementById('performanceMetrics');
+                if (!performanceMetrics) return;
+
+                const allLogs = getLogsForDate(dateString);
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const uniqueUsers = new Set(allLogs.map(log => log.user)).size;
+                const avgSessionLength = allLogs.length > 0 ? Math.round(totalMinutes / allLogs.length) : 0;
+
+                performanceMetrics.innerHTML = `
+                    <div class="metric-item">
+                        <div class="metric-value">${productivity}%</div>
+                        <div class="metric-label">Productivity</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${uniqueUsers}</div>
+                        <div class="metric-label">Active Users</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${avgSessionLength}m</div>
+                        <div class="metric-label">Avg Session</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${allLogs.length}</div>
+                        <div class="metric-label">Activities</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error updating performance metrics:', error);
+            }
+        }
+
+        function updateRealTimeInsights(dateString) {
+            try {
+                const realTimeInsights = document.getElementById('realTimeInsights');
+                if (!realTimeInsights) return;
+
+                const allLogs = getLogsForDate(dateString);
+                const insights = [];
+
+                // Generate insights based on data
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                if (productivity > 80) {
+                    insights.push({
+                        type: 'success',
+                        text: 'Excellent team productivity today!',
+                        time: 'Just now'
+                    });
+                } else if (productivity > 60) {
+                    insights.push({
+                        type: 'info',
+                        text: 'Good productivity levels maintained',
+                        time: 'Just now'
+                    });
+                } else {
+                    insights.push({
+                        type: 'warning',
+                        text: 'Productivity could be improved',
+                        time: 'Just now'
+                    });
+                }
+
+                const uniqueUsers = new Set(allLogs.map(log => log.user)).size;
+                if (uniqueUsers > 3) {
+                    insights.push({
+                        type: 'success',
+                        text: `${uniqueUsers} team members active today`,
+                        time: '2 min ago'
+                    });
+                }
+
+                const projectData = {};
+                allLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                const topProject = Object.entries(projectData)
+                    .sort(([,a], [,b]) => b - a)[0];
+
+                if (topProject) {
+                    insights.push({
+                        type: 'info',
+                        text: `Focus on: ${topProject[0]}`,
+                        time: '5 min ago'
+                    });
+                }
+
+                realTimeInsights.innerHTML = insights.map(insight => `
+                    <div class="insight-item">
+                        <div class="insight-icon ${insight.type}">
+                            <i class="fas fa-${insight.type === 'success' ? 'check' : insight.type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-text">${insight.text}</div>
+                            <div class="insight-time">${insight.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error updating real-time insights:', error);
+            }
+        }
+
+        function updateProductivityTrends(dateString) {
+            try {
+                const productivityTrendChart = document.getElementById('productivityTrendChart');
+                if (!productivityTrendChart) return;
+
+                // For now, show a placeholder. In a real implementation, this would show a trend chart
+                productivityTrendChart.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-chart-line" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <div>Productivity Trend Chart</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.5rem;">Data for ${dateString}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error updating productivity trends:', error);
+            }
+        }
+
+        function updateWorkPatternAnalysis(dateString) {
+            try {
+                const workPatternChart = document.getElementById('workPatternChart');
+                if (!workPatternChart) return;
+
+                // For now, show a placeholder. In a real implementation, this would show work pattern analysis
+                workPatternChart.innerHTML = `
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <div>Work Pattern Analysis</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.5rem;">Data for ${dateString}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error updating work pattern analysis:', error);
+            }
+        }
+
+        function getLogsForDate(dateString) {
+            const allLogs = [];
+            Object.values(allUsersData).forEach(userData => {
+                const dateLogs = userData.logs.filter(log => 
+                    log.timestamp.startsWith(dateString)
+                );
+                allLogs.push(...dateLogs.map(log => ({ ...log, user: userData.user.name })));
+            });
+            return allLogs;
+        }
+
+        // Date-specific update functions
+        function updateTeamOverviewForDate(dateString) {
+            try {
+                const allLogs = getLogsForDate(dateString);
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                const uniqueUsers = new Set(allLogs.map(log => log.user)).size;
+
+                // Update stats
+                document.getElementById('totalUsers').textContent = uniqueUsers;
+                document.getElementById('activeUsers').textContent = uniqueUsers;
+                document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}m`;
+                document.getElementById('avgProductivity').textContent = `${productivity}%`;
+            } catch (error) {
+                console.error('Error updating team overview for date:', error);
+            }
+        }
+
+
+
+        function updateTeamInsightsForDate(dateString) {
+            try {
+                const allLogs = getLogsForDate(dateString);
+                const projectData = {};
+                const recentActivities = [];
+
+                // Collect project data
+                allLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                // Collect recent activities
+                const userRecentLogs = allLogs.slice(-3).reverse();
+                userRecentLogs.forEach(log => {
+                    recentActivities.push({
+                        user: log.user,
+                        activity: `${log.presence} - ${log.project || 'General Work'}`,
+                        time: new Date(log.timestamp).toLocaleTimeString()
+                    });
+                });
+
+                // Update top projects
+                const topProjects = Object.entries(projectData)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+                
+                const topProjectsElement = document.getElementById('topProjects');
+                if (topProjectsElement) {
+                    topProjectsElement.innerHTML = topProjects.length > 0 ? 
+                        topProjects.map(([project, minutes]) => {
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+                            return `
+                                <li class="insight-item">
+                                    <span class="insight-label">${project}</span>
+                                    <span class="insight-value">${hours}h ${mins}m</span>
+                                </li>
+                            `;
+                        }).join('') : '<li class="insight-item">No project data available</li>';
+                }
+
+                // Update team performance
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const teamPerformanceElement = document.getElementById('teamPerformance');
+                if (teamPerformanceElement) {
+                    const totalHours = Math.floor(totalMinutes / 60);
+                    const totalMins = totalMinutes % 60;
+                    const activeHours = Math.floor(activeMinutes / 60);
+                    const activeMins = activeMinutes % 60;
+
+                    teamPerformanceElement.innerHTML = `
+                        <li class="insight-item">
+                            <span class="insight-label">Total Team Time</span>
+                            <span class="insight-value">${totalHours}h ${totalMins}m</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Active Time</span>
+                            <span class="insight-value">${activeHours}h ${activeMins}m</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Team Productivity</span>
+                            <span class="insight-value">${productivity}%</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Total Activities</span>
+                            <span class="insight-value">${allLogs.length}</span>
+                        </li>
+                    `;
+                }
+
+                // Update recent activities
+                const recentActivitiesElement = document.getElementById('recentActivities');
+                if (recentActivitiesElement) {
+                    const sortedActivities = recentActivities
+                        .sort((a, b) => new Date(b.time) - new Date(a.time))
+                        .slice(0, 5);
+
+                    recentActivitiesElement.innerHTML = sortedActivities.length > 0 ? 
+                        sortedActivities.map(activity => `
+                            <li class="insight-item">
+                                <span class="insight-label">${activity.user}</span>
+                                <span class="insight-value">${activity.activity}</span>
+                            </li>
+                        `).join('') : '<li class="insight-item">No recent activities</li>';
+                }
+            } catch (error) {
+                console.error('Error updating team insights for date:', error);
+            }
+        }
+
+        function updateTeamProjectBreakdownForDate(dateString) {
+            try {
+                const teamProjectBreakdown = document.getElementById('teamProjectBreakdown');
+                if (!teamProjectBreakdown) return;
+
+                const allLogs = getLogsForDate(dateString);
+                const projectData = {};
+                allLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                const projects = Object.entries(projectData)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                teamProjectBreakdown.innerHTML = projects.length > 0 ? 
+                    projects.map(([project, minutes]) => {
+                        const hours = Math.floor(minutes / 60);
+                        const mins = minutes % 60;
+                        const percentage = Math.round((minutes / Math.max(...Object.values(projectData))) * 100);
+                        return `
+                            <div class="data-item">
+                                <span>${project}</span>
+                                <span>${hours}h ${mins}m (${percentage}%)</span>
+                            </div>
+                        `;
+                    }).join('') : '<div class="data-item">No project data available</div>';
+            } catch (error) {
+                console.error('Error updating team project breakdown for date:', error);
+            }
+        }
+
+        function updateTeamDailySummaryForDate(dateString) {
+            try {
+                const teamDailySummary = document.getElementById('teamDailySummary');
+                if (!teamDailySummary) return;
+
+                const allLogs = getLogsForDate(dateString);
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                const activeHours = Math.floor(activeMinutes / 60);
+                const activeMins = activeMinutes % 60;
+                const uniqueUsers = new Set(allLogs.map(log => log.user)).size;
+
+                teamDailySummary.innerHTML = `
+                    <div class="data-item">
+                        <span>Total Team Time</span>
+                        <span>${totalHours}h ${totalMins}m</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Active Time</span>
+                        <span>${activeHours}h ${activeMins}m</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Team Productivity</span>
+                        <span>${productivity}%</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Total Activities</span>
+                        <span>${allLogs.length}</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Active Users</span>
+                        <span>${uniqueUsers}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error updating team daily summary for date:', error);
+            }
+        }
+
+        function updateTeamTimelineForDate(dateString) {
+            try {
+                const teamTimelineList = document.getElementById('teamTimelineList');
+                if (!teamTimelineList) return;
+
+                const allLogs = getLogsForDate(dateString);
+                const recentActivities = allLogs.map(log => ({
+                    user: log.user,
+                    activity: `${log.presence} - ${log.project || 'General Work'}`,
+                    time: new Date(log.timestamp).toLocaleTimeString(),
+                    timestamp: new Date(log.timestamp)
+                }));
+
+                const sortedActivities = recentActivities
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10);
+
+                teamTimelineList.innerHTML = sortedActivities.length > 0 ? 
+                    sortedActivities.map(activity => `
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: var(--text-primary);">
+                                    ${activity.user}
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                                    ${activity.activity}
+                                </div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                                ${activity.time}
+                            </div>
+                        </div>
+                    `).join('') : '<div class="timeline-item">No recent team activities</div>';
+            } catch (error) {
+                console.error('Error updating team timeline for date:', error);
+            }
+        }
+
+        function updateTeamInsights() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const allLogs = [];
+                const projectData = {};
+                const recentActivities = [];
+
+                // Aggregate all users' logs
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+                    allLogs.push(...todayLogs);
+
+                    // Collect project data
+                    todayLogs.forEach(log => {
+                        const project = log.project || 'General Work';
+                        projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                    });
+
+                    // Collect recent activities
+                    const userRecentLogs = todayLogs.slice(-3).reverse();
+                    userRecentLogs.forEach(log => {
+                        recentActivities.push({
+                            user: userData.user.name,
+                            activity: `${log.presence} - ${log.project || 'General Work'}`,
+                            time: new Date(log.timestamp).toLocaleTimeString()
+                        });
+                    });
+                });
+
+                // Update top projects
+                const topProjects = Object.entries(projectData)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+                
+                const topProjectsElement = document.getElementById('topProjects');
+                if (topProjectsElement) {
+                    topProjectsElement.innerHTML = topProjects.length > 0 ? 
+                        topProjects.map(([project, minutes]) => {
+                            const hours = Math.floor(minutes / 60);
+                            const mins = minutes % 60;
+                            return `
+                                <li class="insight-item">
+                                    <span class="insight-label">${project}</span>
+                                    <span class="insight-value">${hours}h ${mins}m</span>
+                                </li>
+                            `;
+                        }).join('') : '<li class="insight-item">No project data available</li>';
+                }
+
+                // Update team performance
+                const totalMinutes = allLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const activeMinutes = allLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+                const teamPerformanceElement = document.getElementById('teamPerformance');
+                if (teamPerformanceElement) {
+                    const totalHours = Math.floor(totalMinutes / 60);
+                    const totalMins = totalMinutes % 60;
+                    const activeHours = Math.floor(activeMinutes / 60);
+                    const activeMins = activeMinutes % 60;
+
+                    teamPerformanceElement.innerHTML = `
+                        <li class="insight-item">
+                            <span class="insight-label">Total Team Time</span>
+                            <span class="insight-value">${totalHours}h ${totalMins}m</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Active Time</span>
+                            <span class="insight-value">${activeHours}h ${activeMins}m</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Team Productivity</span>
+                            <span class="insight-value">${productivity}%</span>
+                        </li>
+                        <li class="insight-item">
+                            <span class="insight-label">Total Activities</span>
+                            <span class="insight-value">${allLogs.length}</span>
+                        </li>
+                    `;
+                }
+
+                // Update recent activities
+                const recentActivitiesElement = document.getElementById('recentActivities');
+                if (recentActivitiesElement) {
+                    const sortedActivities = recentActivities
+                        .sort((a, b) => new Date(b.time) - new Date(a.time))
+                        .slice(0, 5);
+
+                    recentActivitiesElement.innerHTML = sortedActivities.length > 0 ? 
+                        sortedActivities.map(activity => `
+                            <li class="insight-item">
+                                <span class="insight-label">${activity.user}</span>
+                                <span class="insight-value">${activity.activity}</span>
+                            </li>
+                        `).join('') : '<li class="insight-item">No recent activities</li>';
+                }
+
+                console.log('Team insights updated');
+            } catch (error) {
+                console.error('Error updating team insights:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

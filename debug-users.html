@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Users</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        select { padding: 10px; font-size: 16px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Debug User Loading</h1>
+    
+    <div class="debug-info">
+        <h3>Debug Information:</h3>
+        <div id="debugOutput"></div>
+    </div>
+    
+    <h3>User Selector:</h3>
+    <select id="userSelect">
+        <option value="">Loading users...</option>
+    </select>
+    
+    <button onclick="testUsers()">Test Users API</button>
+    
+    <script>
+        async function testUsers() {
+            const debugOutput = document.getElementById('debugOutput');
+            const userSelect = document.getElementById('userSelect');
+            
+            try {
+                debugOutput.innerHTML = 'Testing users API...<br>';
+                
+                const response = await fetch('/api/users');
+                debugOutput.innerHTML += `Response status: ${response.status}<br>`;
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                debugOutput.innerHTML += `Data received: ${JSON.stringify(data, null, 2)}<br>`;
+                
+                const users = data.users || [];
+                debugOutput.innerHTML += `Users found: ${users.length}<br>`;
+                
+                // Clear and populate select
+                userSelect.innerHTML = '<option value="">Select User</option>';
+                
+                users.forEach(user => {
+                    debugOutput.innerHTML += `Adding user: ${user.name} (${user.id})<br>`;
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userSelect.appendChild(option);
+                });
+                
+                debugOutput.innerHTML += '✅ Users loaded successfully!<br>';
+                
+            } catch (error) {
+                debugOutput.innerHTML += `❌ Error: ${error.message}<br>`;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', testUsers);
+    </script>
+</body>
+</html> 

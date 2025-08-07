@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Individual Dashboard - Slack Time Tracker Pro</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-selector select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--accent-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--accent-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-profile {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+
+        .user-info h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-away {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-offline {
+            background: #6b7280;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .data-card {
+            background: var(--bg-secondary);
+            padding: 1.25rem;
+            border-radius: 10px;
+        }
+
+        .data-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .data-list {
+            list-style: none;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .timeline-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        .user-selection-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .user-selection-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .user-selection-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .user-selector-large {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-selector-large select {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .user-selector-large select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .user-selector-large label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .no-user-selected {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-user-selected i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-user-selected h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .date-filter-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .date-filter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .date-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .date-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .date-input-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .date-input {
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .quick-date-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .btn-outline.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-selector-large {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .user-selector-large select {
+                min-width: 100%;
+            }
+
+            .date-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .date-input-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .quick-date-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span>Slack Time Tracker Pro</span>
+            </a>
+            <div class="header-actions">
+                <div class="user-selector">
+                    <label for="userSelect">Select User:</label>
+                    <select id="userSelect">
+                        <option value="">Select a user...</option>
+                        <option value="U06CQAKLWG4">Satyam Vatsa</option>
+                        <option value="U093DD1BKAB">Himani</option>
+                        <option value="U083UEN46P8">Taran</option>
+                        <option value="U071V3GDRQ9">Ravneet Singh</option>
+                        <option value="U0927DWEX1Q">Manish Kumar Shah</option>
+                    </select>
+                </div>
+                <a href="/" class="btn-outline">
+                    <i class="fas fa-users"></i>
+                    Team Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- User Selection Section -->
+        <div class="user-selection-section" id="userSelectionSection">
+            <h2 class="user-selection-title">Individual User Dashboard</h2>
+            <p class="user-selection-subtitle">Select a user to view their detailed productivity metrics and activity timeline</p>
+            <div class="user-selector-large">
+                <label for="userSelectLarge">Choose User:</label>
+                <select id="userSelectLarge">
+                    <option value="">Select a user to view their data...</option>
+                    <option value="U06CQAKLWG4">Satyam Vatsa</option>
+                    <option value="U093DD1BKAB">Himani</option>
+                    <option value="U083UEN46P8">Taran</option>
+                    <option value="U071V3GDRQ9">Ravneet Singh</option>
+                    <option value="U0927DWEX1Q">Manish Kumar Shah</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- No User Selected State -->
+        <div class="no-user-selected" id="noUserSelected">
+            <i class="fas fa-user-circle"></i>
+            <h3>No User Selected</h3>
+            <p>Please select a user from the dropdown above to view their individual dashboard</p>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState" style="display: none;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>Loading user data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-message" id="errorState" style="display: none;">
+            <p id="errorMessage"></p>
+        </div>
+
+        <!-- User Content (shown when user is selected) -->
+        <div id="userContent" style="display: none;">
+            <!-- Date Filter Section -->
+            <div class="date-filter-section">
+                <h3 class="date-filter-title">Filter by Date Range</h3>
+                <div class="date-controls">
+                    <div class="date-input-group">
+                        <label for="dateInput">Select Date:</label>
+                        <input type="date" id="dateInput" class="date-input">
+                    </div>
+                    <div class="quick-date-buttons">
+                        <button class="btn btn-outline btn-sm" id="todayBtn">Today</button>
+                        <button class="btn btn-outline btn-sm" id="yesterdayBtn">Yesterday</button>
+                        <button class="btn btn-outline btn-sm" id="last7DaysBtn">Last 7 Days</button>
+                        <button class="btn btn-outline btn-sm" id="last30DaysBtn">Last 30 Days</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1 class="welcome-title">Track Your Team Like a Pro</h1>
+                <p class="welcome-subtitle">Monitor individual productivity and activity in real-time with intelligent Slack integration.</p>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="refreshData">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Data
+                    </button>
+                    <button class="btn btn-primary" id="exportUserData">
+                        <i class="fas fa-download"></i>
+                        Export User Data
+                    </button>
+                    <button class="btn btn-primary" id="viewUserReport">
+                        <i class="fas fa-chart-bar"></i>
+                        View User Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="user-profile" id="userProfile">
+                <div class="user-header">
+                    <div class="user-avatar" id="userAvatar">
+                        <!-- User avatar will be populated here -->
+                    </div>
+                    <div class="user-info">
+                        <h2 id="userName">User Name</h2>
+                        <span class="user-status" id="userStatus">OFFLINE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--accent-primary);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <span class="stat-change">Today</span>
+                    </div>
+                    <div class="stat-value" id="totalTime">0h 0m</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--success);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <span class="stat-change">Active</span>
+                    </div>
+                    <div class="stat-value" id="activeTime">0h 0m</div>
+                    <div class="stat-label">Active Time</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--accent-secondary);">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <span class="stat-change">Projects</span>
+                    </div>
+                    <div class="stat-value" id="projectCount">0</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--warning);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="stat-change">Efficiency</span>
+                    </div>
+                    <div class="stat-value" id="productivity">0%</div>
+                    <div class="stat-label">Productivity</div>
+                </div>
+            </div>
+
+            <!-- Data Grid -->
+            <div class="data-grid" id="dataGrid">
+                <div class="data-card">
+                    <h3 class="data-title">Project Breakdown</h3>
+                    <div class="data-list" id="projectBreakdown">
+                        <!-- Project breakdown will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="data-card">
+                    <h3 class="data-title">Presence Status</h3>
+                    <div class="data-list" id="presenceBreakdown">
+                        <!-- Presence breakdown will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="timeline-section" id="timelineSection">
+                <h2 class="section-title">Recent Activity</h2>
+                <div class="timeline-list" id="timelineList">
+                    <!-- Timeline items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentUserData = { logs: [], currentStatus: null };
+        let selectedDate = new Date().toISOString().split('T')[0]; // Default to today
+        let dateRange = 'single'; // 'single', '7days', '30days'
+        let availableUsers = [
+            { id: 'U06CQAKLWG4', name: 'Satyam Vatsa' },
+            { id: 'U093DD1BKAB', name: 'Himani' },
+            { id: 'U083UEN46P8', name: 'Taran' },
+            { id: 'U071V3GDRQ9', name: 'Ravneet Singh' },
+            { id: 'U0927DWEX1Q', name: 'Manish Kumar Shah' }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Individual dashboard initializing... v4.0 - USER SELECTION FOCUSED');
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('Setting up event listeners...');
+                setupEventListeners();
+                
+                console.log('Individual dashboard initialization complete!');
+                showNoUserSelected();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showError('Error initializing dashboard: ' + error.message);
+            }
+        }
+
+        function setupEventListeners() {
+            // Header user selector
+            const userSelect = document.getElementById('userSelect');
+            userSelect.addEventListener('change', async (e) => {
+                const selectedUserId = e.target.value;
+                if (selectedUserId) {
+                    currentUser = availableUsers.find(u => u.id === selectedUserId);
+                    await loadUserData(selectedUserId);
+                    // Sync the large selector
+                    document.getElementById('userSelectLarge').value = selectedUserId;
+                } else {
+                    showNoUserSelected();
+                }
+            });
+
+            // Large user selector
+            const userSelectLarge = document.getElementById('userSelectLarge');
+            userSelectLarge.addEventListener('change', async (e) => {
+                const selectedUserId = e.target.value;
+                if (selectedUserId) {
+                    currentUser = availableUsers.find(u => u.id === selectedUserId);
+                    await loadUserData(selectedUserId);
+                    // Sync the header selector
+                    document.getElementById('userSelect').value = selectedUserId;
+                } else {
+                    showNoUserSelected();
+                }
+            });
+
+            // Date filter event listeners
+            const dateInput = document.getElementById('dateInput');
+            dateInput.addEventListener('change', (e) => {
+                selectedDate = e.target.value;
+                dateRange = 'single';
+                updateActiveDateButton();
+                if (currentUser) {
+                    updateStats();
+                    updateDataLists();
+                    updateTimeline();
+                }
+            });
+
+            // Quick date buttons
+            document.getElementById('todayBtn').addEventListener('click', () => setDateRange('today'));
+            document.getElementById('yesterdayBtn').addEventListener('click', () => setDateRange('yesterday'));
+            document.getElementById('last7DaysBtn').addEventListener('click', () => setDateRange('7days'));
+            document.getElementById('last30DaysBtn').addEventListener('click', () => setDateRange('30days'));
+
+            document.getElementById('refreshData').addEventListener('click', refreshUserData);
+            document.getElementById('exportUserData').addEventListener('click', exportUserData);
+            document.getElementById('viewUserReport').addEventListener('click', viewUserReport);
+        }
+
+        function showNoUserSelected() {
+            hideAllContent();
+            document.getElementById('noUserSelected').style.display = 'block';
+            document.getElementById('userSelectionSection').style.display = 'block';
+            currentUser = null;
+            currentUserData = { logs: [], currentStatus: null };
+        }
+
+        async function loadUserData(userId) {
+            try {
+                showLoading();
+                hideNoUserSelected();
+                
+                console.log(`Loading data for user: ${userId}`);
+                const response = await fetch(`/api/user/${userId}/data?t=${Date.now()}`);
+                if (!response.ok) {
+                    throw new Error(`User data API error: ${response.status}`);
+                }
+                const data = await response.json();
+                currentUserData.logs = data;
+                console.log(`Data loaded for ${currentUser.name}:`, data.length, 'entries');
+
+                // Load current status
+                try {
+                    const statusResponse = await fetch('/api/status');
+                    if (statusResponse.ok) {
+                        const status = await statusResponse.json();
+                        currentUserData.currentStatus = status;
+                        console.log('Status loaded:', status);
+                    }
+                } catch (error) {
+                    console.error('Error loading status:', error);
+                }
+
+                updateUserProfile();
+                updateStats();
+                updateDataLists();
+                updateTimeline();
+                
+                // Initialize date input and set default date
+                initializeDateInput();
+                
+                hideLoading();
+                showContent();
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showError('Error loading user data: ' + error.message);
+            }
+        }
+
+        function hideNoUserSelected() {
+            document.getElementById('noUserSelected').style.display = 'none';
+        }
+
+        function setDateRange(range) {
+            const today = new Date();
+            const dateInput = document.getElementById('dateInput');
+            
+            switch (range) {
+                case 'today':
+                    selectedDate = today.toISOString().split('T')[0];
+                    dateRange = 'single';
+                    break;
+                case 'yesterday':
+                    const yesterday = new Date(today);
+                    yesterday.setDate(today.getDate() - 1);
+                    selectedDate = yesterday.toISOString().split('T')[0];
+                    dateRange = 'single';
+                    break;
+                case '7days':
+                    selectedDate = today.toISOString().split('T')[0];
+                    dateRange = '7days';
+                    break;
+                case '30days':
+                    selectedDate = today.toISOString().split('T')[0];
+                    dateRange = '30days';
+                    break;
+            }
+            
+            dateInput.value = selectedDate;
+            updateActiveDateButton();
+            
+            if (currentUser) {
+                updateStats();
+                updateDataLists();
+                updateTimeline();
+            }
+        }
+
+        function initializeDateInput() {
+            const dateInput = document.getElementById('dateInput');
+            dateInput.value = selectedDate;
+            updateActiveDateButton();
+        }
+
+        function updateActiveDateButton() {
+            // Remove active class from all buttons
+            document.querySelectorAll('.quick-date-buttons .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class based on current selection
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            
+            if (dateRange === 'single') {
+                if (selectedDate === today) {
+                    document.getElementById('todayBtn').classList.add('active');
+                } else if (selectedDate === yesterdayStr) {
+                    document.getElementById('yesterdayBtn').classList.add('active');
+                }
+            } else if (dateRange === '7days') {
+                document.getElementById('last7DaysBtn').classList.add('active');
+            } else if (dateRange === '30days') {
+                document.getElementById('last30DaysBtn').classList.add('active');
+            }
+        }
+
+        function getFilteredLogs() {
+            if (!currentUserData.logs || currentUserData.logs.length === 0) {
+                return [];
+            }
+
+            if (dateRange === 'single') {
+                return currentUserData.logs.filter(log => 
+                    log.timestamp.startsWith(selectedDate)
+                );
+            } else if (dateRange === '7days') {
+                const endDate = new Date(selectedDate);
+                const startDate = new Date(endDate);
+                startDate.setDate(endDate.getDate() - 6);
+                
+                return currentUserData.logs.filter(log => {
+                    const logDate = new Date(log.timestamp);
+                    return logDate >= startDate && logDate <= endDate;
+                });
+            } else if (dateRange === '30days') {
+                const endDate = new Date(selectedDate);
+                const startDate = new Date(endDate);
+                startDate.setDate(endDate.getDate() - 29);
+                
+                return currentUserData.logs.filter(log => {
+                    const logDate = new Date(log.timestamp);
+                    return logDate >= startDate && logDate <= endDate;
+                });
+            }
+            
+            return currentUserData.logs;
+        }
+
+        function updateUserProfile() {
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userStatus = document.getElementById('userStatus');
+
+            if (currentUser) {
+                userAvatar.textContent = currentUser.name.charAt(0);
+                userName.textContent = currentUser.name;
+                
+                // Determine status
+                let status = 'OFFLINE';
+                let statusClass = 'status-offline';
+                
+                if (currentUserData.currentStatus && currentUserData.currentStatus.current_status) {
+                    status = currentUserData.currentStatus.current_status.presence || 'OFFLINE';
+                    if (status === 'active') {
+                        statusClass = 'status-active';
+                        status = 'ACTIVE';
+                    } else if (status === 'away') {
+                        statusClass = 'status-away';
+                        status = 'AWAY';
+                    }
+                }
+                
+                userStatus.textContent = status;
+                userStatus.className = `user-status ${statusClass}`;
+            }
+        }
+
+        function updateStats() {
+            const filteredLogs = getFilteredLogs();
+
+            // Calculate total time
+            const totalMinutes = filteredLogs.reduce((sum, log) => 
+                sum + (log.duration_from_last || 0), 0
+            );
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = totalMinutes % 60;
+            document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}m`;
+
+            // Calculate active time
+            const activeMinutes = filteredLogs.filter(log => 
+                log.presence === 'active'
+            ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+            const activeHours = Math.floor(activeMinutes / 60);
+            const activeMins = activeMinutes % 60;
+            document.getElementById('activeTime').textContent = `${activeHours}h ${activeMins}m`;
+
+            // Calculate project count
+            const projects = new Set(filteredLogs.map(log => log.project));
+            document.getElementById('projectCount').textContent = projects.size;
+
+            // Calculate productivity
+            const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+            document.getElementById('productivity').textContent = `${productivity}%`;
+
+            // Update stat headers to show date range
+            updateStatHeaders();
+        }
+
+        function updateStatHeaders() {
+            const statChanges = document.querySelectorAll('.stat-change');
+            let dateText = 'Today';
+            
+            if (dateRange === 'single') {
+                const today = new Date().toISOString().split('T')[0];
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                
+                if (selectedDate === today) {
+                    dateText = 'Today';
+                } else if (selectedDate === yesterdayStr) {
+                    dateText = 'Yesterday';
+                } else {
+                    dateText = new Date(selectedDate).toLocaleDateString();
+                }
+            } else if (dateRange === '7days') {
+                dateText = 'Last 7 Days';
+            } else if (dateRange === '30days') {
+                dateText = 'Last 30 Days';
+            }
+            
+            statChanges.forEach(change => {
+                change.textContent = dateText;
+            });
+        }
+
+        function updateDataLists() {
+            const filteredLogs = getFilteredLogs();
+
+            // Update project breakdown
+            const projectData = {};
+            filteredLogs.forEach(log => {
+                const project = log.project || 'General Work';
+                projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+            });
+
+            const projectBreakdown = document.getElementById('projectBreakdown');
+            projectBreakdown.innerHTML = '';
+            Object.entries(projectData).forEach(([project, minutes]) => {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                const li = document.createElement('li');
+                li.className = 'data-item';
+                li.innerHTML = `
+                    <span>${project}</span>
+                    <span>${hours}h ${mins}m</span>
+                `;
+                projectBreakdown.appendChild(li);
+            });
+
+            // Update presence breakdown
+            const presenceData = { active: 0, away: 0, offline: 0 };
+            filteredLogs.forEach(log => {
+                const presence = log.presence || 'offline';
+                presenceData[presence] += log.duration_from_last || 0;
+            });
+
+            const presenceBreakdown = document.getElementById('presenceBreakdown');
+            presenceBreakdown.innerHTML = '';
+            Object.entries(presenceData).forEach(([presence, minutes]) => {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                const li = document.createElement('li');
+                li.className = 'data-item';
+                li.innerHTML = `
+                    <span>${presence.charAt(0).toUpperCase() + presence.slice(1)}</span>
+                    <span>${hours}h ${mins}m</span>
+                `;
+                presenceBreakdown.appendChild(li);
+            });
+        }
+
+        function updateTimeline() {
+            const timelineList = document.getElementById('timelineList');
+            const filteredLogs = getFilteredLogs();
+            const recentLogs = filteredLogs.slice(-10).reverse();
+
+            timelineList.innerHTML = '';
+
+            recentLogs.forEach(log => {
+                const timelineItem = createTimelineItem(log);
+                timelineList.appendChild(timelineItem);
+            });
+        }
+
+        function createTimelineItem(log) {
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+
+            const icon = document.createElement('div');
+            icon.className = 'timeline-icon';
+            icon.innerHTML = '<i class="fas fa-briefcase"></i>';
+
+            const content = document.createElement('div');
+            content.className = 'timeline-content';
+            content.innerHTML = `
+                <div class="timeline-title">${log.project}</div>
+                <div class="timeline-subtitle">${log.status_text || 'No status'}</div>
+            `;
+
+            const time = document.createElement('div');
+            time.className = 'timeline-time';
+            time.textContent = new Date(log.timestamp).toLocaleTimeString();
+
+            item.appendChild(icon);
+            item.appendChild(content);
+            item.appendChild(time);
+
+            return item;
+        }
+
+        async function refreshUserData() {
+            if (currentUser) {
+                await loadUserData(currentUser.id);
+                showNotification('User data refreshed!', 'success');
+            }
+        }
+
+        async function exportUserData() {
+            if (!currentUser) {
+                showNotification('Please select a user first', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user/${currentUser.id}/data`);
+                if (!response.ok) {
+                    throw new Error(`Export failed: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Filter data based on current date selection
+                const filteredData = data.filter(log => {
+                    if (dateRange === 'single') {
+                        return log.timestamp.startsWith(selectedDate);
+                    } else if (dateRange === '7days') {
+                        const endDate = new Date(selectedDate);
+                        const startDate = new Date(endDate);
+                        startDate.setDate(endDate.getDate() - 6);
+                        const logDate = new Date(log.timestamp);
+                        return logDate >= startDate && logDate <= endDate;
+                    } else if (dateRange === '30days') {
+                        const endDate = new Date(selectedDate);
+                        const startDate = new Date(endDate);
+                        startDate.setDate(endDate.getDate() - 29);
+                        const logDate = new Date(log.timestamp);
+                        return logDate >= startDate && logDate <= endDate;
+                    }
+                    return true;
+                });
+                
+                const csvContent = convertToCSV(filteredData);
+                const dateRangeText = getDateRangeText();
+                downloadCSV(csvContent, `${currentUser.name}_${dateRangeText}_export_${Date.now()}.csv`);
+                
+                showNotification('User data exported successfully!', 'success');
+            } catch (error) {
+                console.error('Error exporting user data:', error);
+                showNotification('Failed to export user data: ' + error.message, 'error');
+            }
+        }
+
+        function getDateRangeText() {
+            if (dateRange === 'single') {
+                return selectedDate;
+            } else if (dateRange === '7days') {
+                return 'last7days';
+            } else if (dateRange === '30days') {
+                return 'last30days';
+            }
+            return 'all';
+        }
+
+        function viewUserReport() {
+            if (!currentUser) {
+                showNotification('Please select a user first', 'warning');
+                return;
+            }
+            window.open(`/api/user/${currentUser.id}/report`, '_blank');
+        }
+
+        function convertToCSV(data) {
+            const headers = ['timestamp', 'presence', 'status_text', 'project', 'duration_from_last'];
+            const csvRows = [headers.join(',')];
+            
+            data.forEach(log => {
+                const row = [
+                    log.timestamp,
+                    log.presence,
+                    `"${(log.status_text || '').replace(/"/g, '""')}"`,
+                    `"${log.project.replace(/"/g, '""')}"`,
+                    log.duration_from_last || 0
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            hideContent();
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showContent() {
+            document.getElementById('userContent').style.display = 'block';
+        }
+
+        function hideContent() {
+            document.getElementById('userContent').style.display = 'none';
+        }
+
+        function hideAllContent() {
+            hideContent();
+            hideLoading();
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').style.display = 'block';
+            hideLoading();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.getElementById('notificationContainer').appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

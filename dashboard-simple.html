@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack Time Tracker Pro - Simple</title>
+    
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--accent-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .data-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .data-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .data-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .data-list {
+            list-style: none;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span>Slack Time Tracker Pro</span>
+            </a>
+            <div id="connectionStatus">Connected</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Track Your Time Like a Pro</h1>
+            <p class="welcome-subtitle">Automatically track your productivity with intelligent Slack integration.</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="startTracking">
+                    <i class="fas fa-play"></i> Start Tracking
+                </button>
+                <button class="btn btn-primary" id="viewReport">
+                    <i class="fas fa-chart-bar"></i> View Report
+                </button>
+                <button class="btn btn-primary" id="exportData">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--accent-primary);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span class="stat-change">+12% today</span>
+                </div>
+                <div class="stat-value" id="totalTime">0h 0m</div>
+                <div class="stat-label">Total Time Tracked</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--success);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="stat-change">+5% today</span>
+                </div>
+                <div class="stat-value" id="activeTime">0h 0m</div>
+                <div class="stat-label">Active Time</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--warning);">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <span class="stat-change">3 projects</span>
+                </div>
+                <div class="stat-value" id="projectCount">0</div>
+                <div class="stat-label">Active Projects</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: var(--accent-secondary);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="stat-change">+8% efficiency</span>
+                </div>
+                <div class="stat-value" id="productivity">85%</div>
+                <div class="stat-label">Productivity Score</div>
+            </div>
+        </div>
+
+        <!-- Data Sections -->
+        <div class="data-section">
+            <h2 class="section-title">Time Distribution</h2>
+            <div class="data-grid">
+                <div class="data-card">
+                    <h3 class="data-title">Projects</h3>
+                    <ul class="data-list" id="projectList">
+                        <li class="data-item">
+                            <span>Loading...</span>
+                            <span>0m</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="data-card">
+                    <h3 class="data-title">Presence Status</h3>
+                    <ul class="data-list" id="presenceList">
+                        <li class="data-item">
+                            <span>Loading...</span>
+                            <span>0m</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="timeline-list" id="timelineList">
+                <!-- Timeline items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Global variables
+        let currentData = { logs: [], currentStatus: null };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Simple dashboard initializing...');
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('Loading initial data...');
+                await loadData();
+                
+                console.log('Setting up event listeners...');
+                setupEventListeners();
+                
+                console.log('Starting auto refresh...');
+                startAutoRefresh();
+                
+                console.log('Simple dashboard initialization complete!');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showNotification('Error initializing dashboard', 'error');
+            }
+        }
+
+        async function loadData() {
+            try {
+                console.log('Fetching data from API...');
+                const dataResponse = await fetch('/api/data');
+                if (!dataResponse.ok) {
+                    throw new Error(`Data API error: ${dataResponse.status}`);
+                }
+                const data = await dataResponse.json();
+                console.log('Data loaded:', data.length, 'entries');
+                currentData.logs = data;
+
+                console.log('Fetching status from API...');
+                const statusResponse = await fetch('/api/status');
+                if (!statusResponse.ok) {
+                    throw new Error(`Status API error: ${statusResponse.status}`);
+                }
+                const status = await statusResponse.json();
+                console.log('Status loaded:', status);
+                currentData.currentStatus = status.current_status;
+
+                updateStats();
+                updateDataLists();
+                updateTimeline();
+                updateConnectionStatus(status.is_tracking);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        function updateStats() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const todayLogs = currentData.logs.filter(log => 
+                    log.timestamp.startsWith(today)
+                );
+
+                console.log('Updating stats for', todayLogs.length, 'today logs');
+
+                const totalMinutes = todayLogs.reduce((sum, log) => 
+                    sum + (log.duration_from_last || 0), 0
+                );
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}m`;
+
+                const activeMinutes = todayLogs.filter(log => 
+                    log.presence === 'active'
+                ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const activeHours = Math.floor(activeMinutes / 60);
+                const activeMins = activeMinutes % 60;
+                document.getElementById('activeTime').textContent = `${activeHours}h ${activeMins}m`;
+
+                const projects = new Set(todayLogs.map(log => log.project));
+                document.getElementById('projectCount').textContent = projects.size;
+
+                const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+                document.getElementById('productivity').textContent = `${productivity}%`;
+
+                console.log('Stats updated - Total:', totalMinutes, 'Active:', activeMinutes, 'Projects:', projects.size);
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        function updateDataLists() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const todayLogs = currentData.logs.filter(log => 
+                    log.timestamp.startsWith(today)
+                );
+
+                // Update project list
+                const projectData = {};
+                todayLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                const projectList = document.getElementById('projectList');
+                projectList.innerHTML = '';
+                Object.entries(projectData).forEach(([project, minutes]) => {
+                    const hours = Math.floor(minutes / 60);
+                    const mins = minutes % 60;
+                    const li = document.createElement('li');
+                    li.className = 'data-item';
+                    li.innerHTML = `
+                        <span>${project}</span>
+                        <span>${hours}h ${mins}m</span>
+                    `;
+                    projectList.appendChild(li);
+                });
+
+                // Update presence list
+                const presenceData = { active: 0, away: 0, offline: 0 };
+                todayLogs.forEach(log => {
+                    const presence = log.presence || 'offline';
+                    presenceData[presence] += log.duration_from_last || 0;
+                });
+
+                const presenceList = document.getElementById('presenceList');
+                presenceList.innerHTML = '';
+                Object.entries(presenceData).forEach(([presence, minutes]) => {
+                    const hours = Math.floor(minutes / 60);
+                    const mins = minutes % 60;
+                    const li = document.createElement('li');
+                    li.className = 'data-item';
+                    li.innerHTML = `
+                        <span>${presence.charAt(0).toUpperCase() + presence.slice(1)}</span>
+                        <span>${hours}h ${mins}m</span>
+                    `;
+                    presenceList.appendChild(li);
+                });
+
+                console.log('Data lists updated');
+            } catch (error) {
+                console.error('Error updating data lists:', error);
+            }
+        }
+
+        function updateTimeline() {
+            try {
+                const timelineList = document.getElementById('timelineList');
+                const recentLogs = currentData.logs.slice(-10).reverse();
+
+                timelineList.innerHTML = '';
+
+                recentLogs.forEach(log => {
+                    const timelineItem = createTimelineItem(log);
+                    timelineList.appendChild(timelineItem);
+                });
+
+                console.log('Timeline updated with', recentLogs.length, 'items');
+            } catch (error) {
+                console.error('Error updating timeline:', error);
+            }
+        }
+
+        function createTimelineItem(log) {
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+
+            const icon = document.createElement('div');
+            icon.className = 'timeline-icon';
+            icon.innerHTML = '<i class="fas fa-briefcase"></i>';
+
+            const content = document.createElement('div');
+            content.className = 'timeline-content';
+            content.innerHTML = `
+                <div class="timeline-title">${log.project}</div>
+                <div class="timeline-subtitle">${log.status_text || 'No status'}</div>
+            `;
+
+            const time = document.createElement('div');
+            time.className = 'timeline-time';
+            time.textContent = new Date(log.timestamp).toLocaleTimeString();
+
+            item.appendChild(icon);
+            item.appendChild(content);
+            item.appendChild(time);
+
+            return item;
+        }
+
+        function updateConnectionStatus(isTracking) {
+            try {
+                const statusElement = document.getElementById('connectionStatus');
+                if (isTracking) {
+                    statusElement.textContent = 'Tracking Active';
+                } else {
+                    statusElement.textContent = 'Connected';
+                }
+                console.log('Connection status updated:', isTracking ? 'Tracking Active' : 'Connected');
+            } catch (error) {
+                console.error('Error updating connection status:', error);
+            }
+        }
+
+        function setupEventListeners() {
+            try {
+                console.log('Setting up event listeners...');
+                
+                const startTrackingBtn = document.getElementById('startTracking');
+                if (startTrackingBtn) {
+                    startTrackingBtn.addEventListener('click', async () => {
+                        console.log('Start tracking button clicked');
+                        await startTracking();
+                    });
+                } else {
+                    console.error('Start tracking button not found');
+                }
+
+                const viewReportBtn = document.getElementById('viewReport');
+                if (viewReportBtn) {
+                    viewReportBtn.addEventListener('click', () => {
+                        console.log('View report button clicked');
+                        window.open('/api/report', '_blank');
+                    });
+                } else {
+                    console.error('View report button not found');
+                }
+
+                const exportDataBtn = document.getElementById('exportData');
+                if (exportDataBtn) {
+                    exportDataBtn.addEventListener('click', async () => {
+                        console.log('Export data button clicked');
+                        await exportData();
+                    });
+                } else {
+                    console.error('Export data button not found');
+                }
+
+                console.log('Event listeners setup complete');
+            } catch (error) {
+                console.error('Error setting up event listeners:', error);
+            }
+        }
+
+        async function startTracking() {
+            try {
+                console.log('Starting tracking...');
+                const response = await fetch('/api/start-tracking', { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error(`Start tracking failed: ${response.status}`);
+                }
+                const result = await response.json();
+                console.log('Start tracking result:', result);
+                
+                if (result.is_running) {
+                    const btn = document.getElementById('startTracking');
+                    btn.innerHTML = '<i class="fas fa-stop"></i> Stop Tracking';
+                    showNotification('Time tracking started!', 'success');
+                } else {
+                    showNotification('Failed to start tracking', 'error');
+                }
+            } catch (error) {
+                console.error('Error starting tracking:', error);
+                showNotification('Failed to start tracking: ' + error.message, 'error');
+            }
+        }
+
+        async function exportData() {
+            try {
+                console.log('Exporting data...');
+                const response = await fetch('/api/data');
+                if (!response.ok) {
+                    throw new Error(`Export failed: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                const csvContent = convertToCSV(data);
+                downloadCSV(csvContent, `slack_time_export_${Date.now()}.csv`);
+                
+                showNotification('Data exported successfully!', 'success');
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showNotification('Failed to export data: ' + error.message, 'error');
+            }
+        }
+
+        function convertToCSV(data) {
+            const headers = ['timestamp', 'presence', 'status_text', 'project', 'duration_from_last'];
+            const csvRows = [headers.join(',')];
+            
+            data.forEach(log => {
+                const row = [
+                    log.timestamp,
+                    log.presence,
+                    `"${(log.status_text || '').replace(/"/g, '""')}"`,
+                    `"${log.project.replace(/"/g, '""')}"`,
+                    log.duration_from_last || 0
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function startAutoRefresh() {
+            console.log('Starting auto refresh every 30 seconds...');
+            setInterval(async () => {
+                console.log('Auto refreshing data...');
+                await loadData();
+            }, 30000);
+        }
+
+        function showNotification(message, type) {
+            try {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                const container = document.getElementById('notificationContainer');
+                if (container) {
+                    container.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 3000);
+                }
+                console.log('Notification shown:', message, type);
+            } catch (error) {
+                console.error('Error showing notification:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

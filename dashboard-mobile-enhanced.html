@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack Time Tracker Pro - Mobile Enhanced</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--success);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Date Filter Section */
+        .date-filter-section {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .date-filter-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .date-filter-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .date-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .date-input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .date-filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .date-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent-primary);
+            background: transparent;
+            color: var(--accent-primary);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .date-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .date-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--accent-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .stat-icon.users { background: var(--accent-primary); }
+        .stat-icon.active { background: var(--success); }
+        .stat-icon.time { background: var(--warning); }
+        .stat-icon.productivity { background: var(--accent-secondary); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .stat-change.negative {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        /* Users Grid */
+        .users-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.away {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.offline {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .user-stat {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .user-stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Loading and Error States */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+            color: var(--accent-primary);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .date-filter-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .date-input-container {
+                justify-content: center;
+            }
+
+            .date-filter-buttons {
+                justify-content: center;
+            }
+
+            .date-btn {
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .hero-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.25rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .user-card {
+                padding: 1.25rem;
+            }
+
+            .user-stats {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .container {
+                padding: 0.75rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 1.25rem;
+            }
+
+            .date-filter-section {
+                padding: 1rem;
+            }
+
+            .date-filter-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .date-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .user-card {
+                padding: 1rem;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-card: #334155;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span>Slack Time Tracker Pro</span>
+            </a>
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Connected</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Date Filter Section -->
+        <section class="date-filter-section">
+            <div class="date-filter-header">
+                <h3 class="date-filter-title">Filter by Date Range</h3>
+                <div class="date-input-container">
+                    <input type="date" id="customDate" class="date-input" onchange="filterByCustomDate()">
+                    <i class="fas fa-calendar"></i>
+                </div>
+            </div>
+            <div class="date-filter-buttons">
+                <button class="date-btn active" onclick="filterByDate('today')">Today</button>
+                <button class="date-btn" onclick="filterByDate('yesterday')">Yesterday</button>
+                <button class="date-btn" onclick="filterByDate('last7days')">Last 7 Days</button>
+                <button class="date-btn" onclick="filterByDate('last30days')">Last 30 Days</button>
+            </div>
+        </section>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Track Your Team Like a Pro</h1>
+            <p class="hero-subtitle">Monitor your team's productivity and activity in real-time with intelligent Slack integration.</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Users
+                </button>
+                <button class="btn btn-secondary" onclick="exportData()">
+                    <i class="fas fa-download"></i>
+                    Export Team Data
+                </button>
+                <button class="btn btn-secondary" onclick="viewReport()">
+                    <i class="fas fa-chart-bar"></i>
+                    View Team Report
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Overview -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +2 today
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon active">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +1 today
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon time">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="totalTime">0h 0m</div>
+                <div class="stat-label">Total Time Today</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +15% today
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon productivity">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="avgProductivity">0%</div>
+                <div class="stat-label">Avg Productivity</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +8% efficiency
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section class="users-section">
+            <div class="section-header">
+                <h2 class="section-title">Team Members</h2>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Loading team data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="errorText">Error loading team data</span>
+            </div>
+
+            <!-- Users Grid -->
+            <div id="usersGrid" class="users-grid" style="display: none;">
+                <!-- User cards will be populated here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Global variables
+        let availableUsers = [];
+        let allUsersData = {};
+        let refreshInterval;
+        let currentDateFilter = 'today';
+        let selectedDate = new Date();
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing mobile enhanced dashboard...');
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('Setting up event listeners...');
+                setupEventListeners();
+                
+                console.log('Loading users...');
+                await loadUsers();
+                
+                console.log('Loading all users data...');
+                await loadAllUsersData();
+                
+                console.log('Starting auto refresh...');
+                startAutoRefresh();
+                
+                console.log('Mobile enhanced dashboard initialization complete!');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showError('Error initializing application: ' + error.message);
+            }
+        }
+
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Set default date input value
+            const dateInput = document.getElementById('customDate');
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+            
+            console.log('Event listeners setup complete');
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                if (response.ok) {
+                    const data = await response.json();
+                    availableUsers = data.users || [];
+                    console.log('Users loaded:', availableUsers.length);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Error loading users: ' + error.message);
+            }
+        }
+
+        async function loadAllUsersData() {
+            try {
+                console.log('Loading data for all users...');
+                
+                // Load data for each user
+                for (const user of availableUsers) {
+                    try {
+                        const response = await fetch(`/api/user/${user.id}/data?t=${Date.now()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            allUsersData[user.id] = {
+                                user: user,
+                                logs: data,
+                                currentStatus: null
+                            };
+                            console.log(`Data loaded for ${user.name}:`, data.length, 'entries');
+                        } else {
+                            console.error(`Failed to load data for ${user.name}:`, response.status);
+                        }
+                    } catch (error) {
+                        console.error(`Error loading data for ${user.name}:`, error);
+                    }
+                }
+
+                updateTeamOverview();
+                updateUserCards();
+                
+                // Safely hide loading and show content
+                const loadingState = document.getElementById('loadingState');
+                const usersGrid = document.getElementById('usersGrid');
+                
+                if (loadingState) {
+                    loadingState.style.display = 'none';
+                }
+                if (usersGrid) {
+                    usersGrid.style.display = 'grid';
+                }
+                
+            } catch (error) {
+                console.error('Error loading all users data:', error);
+                showError('Error loading team data: ' + error.message);
+            }
+        }
+
+        function updateTeamOverview() {
+            try {
+                const { startDate, endDate } = getDateRange();
+                let totalActiveUsers = 0;
+                let totalMinutes = 0;
+                let totalActiveMinutes = 0;
+
+                // Calculate totals from all users
+                Object.values(allUsersData).forEach(userData => {
+                    const filteredLogs = userData.logs.filter(log => {
+                        const logDate = new Date(log.timestamp);
+                        return logDate >= startDate && logDate <= endDate;
+                    });
+
+                    // Check if user is currently active
+                    if (userData.currentStatus && userData.currentStatus.presence === 'active') {
+                        totalActiveUsers++;
+                    }
+
+                    // Calculate time
+                    const userMinutes = filteredLogs.reduce((sum, log) => 
+                        sum + (log.duration_from_last || 0), 0
+                    );
+                    totalMinutes += userMinutes;
+
+                    const userActiveMinutes = filteredLogs.filter(log => 
+                        log.presence === 'active'
+                    ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                    totalActiveMinutes += userActiveMinutes;
+                });
+
+                // Update overview cards
+                const totalUsersElement = document.getElementById('totalUsers');
+                const activeUsersElement = document.getElementById('activeUsers');
+                const totalTimeElement = document.getElementById('totalTime');
+                const avgProductivityElement = document.getElementById('avgProductivity');
+
+                if (totalUsersElement) totalUsersElement.textContent = availableUsers.length;
+                if (activeUsersElement) activeUsersElement.textContent = totalActiveUsers;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                if (totalTimeElement) totalTimeElement.textContent = `${totalHours}h ${totalMins}m`;
+
+                const avgProductivity = totalMinutes > 0 ? Math.round((totalActiveMinutes / totalMinutes) * 100) : 0;
+                if (avgProductivityElement) avgProductivityElement.textContent = `${avgProductivity}%`;
+
+            } catch (error) {
+                console.error('Error updating team overview:', error);
+            }
+        }
+
+        function updateUserCards() {
+            try {
+                const usersGrid = document.getElementById('usersGrid');
+                if (!usersGrid) return;
+
+                usersGrid.innerHTML = '';
+
+                availableUsers.forEach(user => {
+                    const userData = allUsersData[user.id];
+                    const userCard = createUserCard(user, userData);
+                    usersGrid.appendChild(userCard);
+                });
+
+            } catch (error) {
+                console.error('Error updating user cards:', error);
+            }
+        }
+
+        function createUserCard(user, userData) {
+            const card = document.createElement('div');
+            card.className = 'user-card';
+
+            const { startDate, endDate } = getDateRange();
+            const filteredLogs = userData ? userData.logs.filter(log => {
+                const logDate = new Date(log.timestamp);
+                return logDate >= startDate && logDate <= endDate;
+            }) : [];
+
+            const totalMinutes = filteredLogs.reduce((sum, log) => 
+                sum + (log.duration_from_last || 0), 0
+            );
+            const activeMinutes = filteredLogs.filter(log => 
+                log.presence === 'active'
+            ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            const productivity = totalMinutes > 0 ? Math.round((activeMinutes / totalMinutes) * 100) : 0;
+
+            // Get current status (use last log entry as approximation)
+            const currentStatus = filteredLogs.length > 0 ? filteredLogs[filteredLogs.length - 1].presence : 'offline';
+            const statusText = currentStatus === 'active' ? 'Active' : 
+                              currentStatus === 'away' ? 'Away' : 'Offline';
+
+            card.innerHTML = `
+                <div class="user-header">
+                    <div class="user-avatar">
+                        ${user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="user-info">
+                        <h3>${user.name}</h3>
+                        <div class="user-status">
+                            <span class="status-badge ${currentStatus}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <div class="user-stat-value">${hours}h ${minutes}m</div>
+                        <div class="user-stat-label">Total Time</div>
+                    </div>
+                    <div class="user-stat">
+                        <div class="user-stat-value">${productivity}%</div>
+                        <div class="user-stat-label">Productivity</div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function getDateRange() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let startDate, endDate;
+            
+            switch (currentDateFilter) {
+                case 'today':
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                case 'yesterday':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 1);
+                    endDate = new Date(startDate);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                case 'last7days':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 7);
+                    endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                case 'last30days':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 30);
+                    endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                case 'custom':
+                    startDate = new Date(selectedDate);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate = new Date(selectedDate);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                default:
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
+            }
+            
+            return { startDate, endDate };
+        }
+
+        function filterByDate(filter) {
+            currentDateFilter = filter;
+            selectedDate = new Date();
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.date-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update date input
+            const dateInput = document.getElementById('customDate');
+            if (dateInput) {
+                if (filter === 'today') {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                } else if (filter === 'yesterday') {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    dateInput.value = yesterday.toISOString().split('T')[0];
+                }
+            }
+            
+            // Refresh data
+            updateTeamOverview();
+            updateUserCards();
+        }
+
+        function filterByCustomDate() {
+            const dateInput = document.getElementById('customDate');
+            if (dateInput && dateInput.value) {
+                currentDateFilter = 'custom';
+                selectedDate = new Date(dateInput.value);
+                
+                // Update button states
+                const buttons = document.querySelectorAll('.date-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                
+                // Refresh data
+                updateTeamOverview();
+                updateUserCards();
+            }
+        }
+
+        function showError(message) {
+            console.error('Error displayed:', message);
+            const errorState = document.getElementById('errorState');
+            const errorText = document.getElementById('errorText');
+            
+            if (errorState && errorText) {
+                errorText.textContent = message;
+                errorState.style.display = 'flex';
+            }
+        }
+
+        function startAutoRefresh() {
+            console.log('Starting auto refresh every 30 seconds...');
+            refreshInterval = setInterval(async () => {
+                try {
+                    await loadAllUsersData();
+                } catch (error) {
+                    console.error('Auto refresh error:', error);
+                }
+            }, 30000);
+        }
+
+        // Action functions
+        async function refreshData() {
+            try {
+                const loadingState = document.getElementById('loadingState');
+                if (loadingState) {
+                    loadingState.style.display = 'flex';
+                }
+                
+                await loadUsers();
+                await loadAllUsersData();
+                
+                if (loadingState) {
+                    loadingState.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showError('Error refreshing data: ' + error.message);
+            }
+        }
+
+        function exportData() {
+            // Implement export functionality
+            console.log('Export data clicked');
+            alert('Export functionality will be implemented soon!');
+        }
+
+        function viewReport() {
+            // Navigate to report page
+            window.location.href = '/individual';
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>

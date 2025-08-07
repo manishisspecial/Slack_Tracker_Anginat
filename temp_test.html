@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Time Tracker - All Users Dashboard</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .team-overview {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .overview-card {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .overview-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .user-details h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-away {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-offline {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .user-activity {
+            margin-top: 0.75rem;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .activity-list {
+            list-style: none;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>Team Time Tracker</h1>
+                <p>Real-time tracking for all team members</p>
+            </div>
+            <div class="header-actions">
+                <a href="/individual" class="btn btn-outline">
+                    <i class="fas fa-user"></i> View Individual Users
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Team Overview -->
+        <div class="team-overview">
+            <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Team Overview</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="overview-value" id="totalUsers">4</div>
+                    <div class="overview-label">Active Users</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-value" id="activeUsers">2</div>
+                    <div class="overview-label">Currently Active</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-value" id="totalTime">0h 0m</div>
+                    <div class="overview-label">Total Time Today</div>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-value" id="avgProductivity">85%</div>
+                    <div class="overview-label">Avg Productivity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Grid -->
+        <div class="users-grid" id="usersGrid">
+            <!-- User cards will be populated here -->
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3 class="chart-title">Team Activity Distribution</h3>
+                <canvas id="teamChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Team Presence Status</h3>
+                <canvas id="presenceChart" width="300" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshAllData()" title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Global variables
+        let teamChart, presenceChart;
+        let allUsersData = {};
+        let availableUsers = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Team dashboard initializing...');
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                console.log('Loading users...');
+                await loadUsers();
+                
+                console.log('Initializing charts...');
+                initializeCharts();
+                
+                console.log('Loading all users data...');
+                await loadAllUsersData();
+                
+                console.log('Starting auto refresh...');
+                startAutoRefresh();
+                
+                console.log('Team dashboard initialization complete!');
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showNotification('Error initializing dashboard', 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                console.log('Fetching users from API...');
+                const response = await fetch('/api/users?t=' + Date.now());
+                if (!response.ok) {
+                    throw new Error(`Users API error: ${response.status}`);
+                }
+                const data = await response.json();
+                availableUsers = data.users || [];
+                console.log('Available users:', availableUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showNotification('Error loading users: ' + error.message, 'error');
+            }
+        }
+
+        async function loadAllUsersData() {
+            try {
+                console.log('Loading data for all users...');
+                
+                // Load data for each user
+                for (const user of availableUsers) {
+                    try {
+                        const response = await fetch(`/api/user/${user.id}/data?t=${Date.now()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            allUsersData[user.id] = {
+                                user: user,
+                                logs: data,
+                                currentStatus: null
+                            };
+                            console.log(`Data loaded for ${user.name}:`, data.length, 'entries');
+                        } else {
+                            console.error(`Failed to load data for ${user.name}:`, response.status);
+                        }
+                    } catch (error) {
+                        console.error(`Error loading data for ${user.name}:`, error);
+                    }
+                }
+
+                // Load current status
+                try {
+                    const statusResponse = await fetch('/api/status');
+                    if (statusResponse.ok) {
+                        const status = await statusResponse.json();
+                        console.log('Overall status loaded:', status);
+                    }
+                } catch (error) {
+                    console.error('Error loading status:', error);
+                }
+
+                updateTeamOverview();
+                updateUserCards();
+                updateCharts();
+                
+            } catch (error) {
+                console.error('Error loading all users data:', error);
+                showNotification('Error loading team data: ' + error.message, 'error');
+            }
+        }
+
+        function updateTeamOverview() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                let totalActiveUsers = 0;
+                let totalMinutes = 0;
+                let totalActiveMinutes = 0;
+
+                // Calculate totals from all users
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+
+                    // Check if user is currently active
+                    if (userData.currentStatus && userData.currentStatus.presence === 'active') {
+                        totalActiveUsers++;
+                    }
+
+                    // Calculate time
+                    const userMinutes = todayLogs.reduce((sum, log) => 
+                        sum + (log.duration_from_last || 0), 0
+                    );
+                    totalMinutes += userMinutes;
+
+                    const userActiveMinutes = todayLogs.filter(log => 
+                        log.presence === 'active'
+                    ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                    totalActiveMinutes += userActiveMinutes;
+                });
+
+                // Update overview cards
+                document.getElementById('totalUsers').textContent = availableUsers.length;
+                document.getElementById('activeUsers').textContent = totalActiveUsers;
+
+                const totalHours = Math.floor(totalMinutes / 60);
+                const totalMins = totalMinutes % 60;
+                document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}m`;
+
+                const avgProductivity = totalMinutes > 0 ? Math.round((totalActiveMinutes / totalMinutes) * 100) : 0;
+                document.getElementById('avgProductivity').textContent = `${avgProductivity}%`;
+
+                console.log('Team overview updated');
+            } catch (error) {
+                console.error('Error updating team overview:', error);
+            }
+        }
+
+        function updateUserCards() {
+            try {
+                const usersGrid = document.getElementById('usersGrid');
+                usersGrid.innerHTML = '';
+
+                availableUsers.forEach(user => {
+                    const userData = allUsersData[user.id];
+                    if (!userData) return;
+
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+
+                    // Calculate user stats
+                    const totalMinutes = todayLogs.reduce((sum, log) => 
+                        sum + (log.duration_from_last || 0), 0
+                    );
+                    const activeMinutes = todayLogs.filter(log => 
+                        log.presence === 'active'
+                    ).reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+
+                    const totalHours = Math.floor(totalMinutes / 60);
+                    const totalMins = totalMinutes % 60;
+                    const activeHours = Math.floor(activeMinutes / 60);
+                    const activeMins = activeMinutes % 60;
+
+                    // Get current status
+                    const currentStatus = userData.currentStatus?.presence || 'offline';
+                    const statusClass = `status-${currentStatus}`;
+                    const statusText = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+
+                    // Get recent activity
+                    const recentLogs = todayLogs.slice(-3).reverse();
+
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.innerHTML = `
+                        <div class="user-header">
+                            <div class="user-info">
+                                <div class="user-avatar">${user.name.charAt(0)}</div>
+                                <div class="user-details">
+                                    <h3>${user.name}</h3>
+                                    <small>${user.id}</small>
+                                </div>
+                            </div>
+                            <div class="user-status ${statusClass}">${statusText}</div>
+                        </div>
+                        
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${totalHours}h ${totalMins}m</div>
+                                <div class="stat-label">Total Time</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${activeHours}h ${activeMins}m</div>
+                                <div class="stat-label">Active Time</div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-activity">
+                            <div class="activity-title">Recent Activity</div>
+                            <ul class="activity-list">
+                                ${recentLogs.map(log => `
+                                    <li class="activity-item">
+                                        <span>${log.presence} - ${log.project}</span>
+                                        <span class="activity-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                                    </li>
+                                `).join('')}
+                                ${recentLogs.length === 0 ? '<li class="activity-item">No recent activity</li>' : ''}
+                            </ul>
+                        </div>
+                    `;
+
+                    usersGrid.appendChild(userCard);
+                });
+
+                console.log('User cards updated');
+            } catch (error) {
+                console.error('Error updating user cards:', error);
+            }
+        }
+
+        function initializeCharts() {
+            try {
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js not loaded');
+                    showNotification('Chart.js failed to load, showing basic stats', 'warning');
+                    return;
+                }
+
+                // Team Activity Chart
+                const teamCtx = document.getElementById('teamChart');
+                if (!teamCtx) {
+                    console.error('Team chart canvas not found');
+                    return;
+                }
+                
+                teamChart = new Chart(teamCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['No Data'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: [
+                                '#6366f1',
+                                '#8b5cf6',
+                                '#06b6d4',
+                                '#10b981',
+                                '#f59e0b',
+                                '#ef4444'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#1e293b',
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Presence Chart
+                const presenceCtx = document.getElementById('presenceChart');
+                if (!presenceCtx) {
+                    console.error('Presence chart canvas not found');
+                    return;
+                }
+                
+                presenceChart = new Chart(presenceCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Active', 'Away', 'Offline'],
+                        datasets: [{
+                            data: [0, 0, 0],
+                            backgroundColor: ['#10b981', '#f59e0b', '#6b7280'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#1e293b',
+                                    padding: 15,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+
+                console.log('Charts initialized successfully');
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+                showNotification('Error initializing charts', 'error');
+            }
+        }
+
+        function updateCharts() {
+            try {
+                if (!teamChart || !presenceChart) {
+                    console.log('Charts not initialized, skipping update');
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const allLogs = [];
+                const presenceData = { active: 0, away: 0, offline: 0 };
+
+                // Aggregate all users' logs
+                Object.values(allUsersData).forEach(userData => {
+                    const todayLogs = userData.logs.filter(log => 
+                        log.timestamp.startsWith(today)
+                    );
+                    allLogs.push(...todayLogs);
+
+                    // Count current presence
+                    const currentStatus = userData.currentStatus?.presence || 'offline';
+                    presenceData[currentStatus]++;
+                });
+
+                // Update team activity chart
+                const projectData = {};
+                allLogs.forEach(log => {
+                    const project = log.project || 'General Work';
+                    projectData[project] = (projectData[project] || 0) + (log.duration_from_last || 0);
+                });
+
+                const projectLabels = Object.keys(projectData);
+                const projectValues = Object.values(projectData);
+
+                teamChart.data.labels = projectLabels.length > 0 ? projectLabels : ['No Data'];
+                teamChart.data.datasets[0].data = projectValues.length > 0 ? projectValues : [1];
+                teamChart.update();
+
+                // Update presence chart
+                presenceChart.data.datasets[0].data = [
+                    presenceData.active,
+                    presenceData.away,
+                    presenceData.offline
+                ];
+                presenceChart.update();
+
+                console.log('Charts updated');
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+
+        async function refreshAllData() {
+            try {
+                console.log('Refreshing all data...');
+                await loadAllUsersData();
+                showNotification('Data refreshed successfully!', 'success');
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showNotification('Error refreshing data', 'error');
+            }
+        }
+
+        function startAutoRefresh() {
+            console.log('Starting auto refresh every 30 seconds...');
+            setInterval(async () => {
+                console.log('Auto refreshing team data...');
+                await loadAllUsersData();
+            }, 30000);
+        }
+
+        function showNotification(message, type) {
+            try {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+
+                const container = document.getElementById('notificationContainer');
+                if (container) {
+                    container.appendChild(notification);
+
+                    setTimeout(() => {
+                        notification.classList.add('show');
+                    }, 100);
+
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 3000);
+                }
+                console.log('Notification shown:', message, type);
+            } catch (error) {
+                console.error('Error showing notification:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

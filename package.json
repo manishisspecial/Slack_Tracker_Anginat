@@ -1,0 +1,40 @@
+{
+  "name": "slack-time-tracker",
+  "version": "1.0.0",
+  "description": "Track time using Slack presence and status",
+  "main": "runner.js",
+  "scripts": {
+    "start": "node runner.js start",
+    "multi-start": "node multi-user-runner.js start",
+    "multi-status": "node multi-user-runner.js status",
+    "multi-report": "node multi-user-runner.js report",
+    "multi-export": "node multi-user-runner.js export",
+    "multi-test": "node multi-user-runner.js test",
+    "report": "node runner.js report",
+    "export": "node runner.js export",
+    "test": "node runner.js test",
+    "web": "node web-server.js web",
+    "web:dev": "node web-server.js web 3000",
+    "setup": "node setup.js",
+    "bot": "node slack-bot.js",
+    "enhanced": "node web-server.js web 3000",
+    "build": "echo 'No build step required - this is a Node.js application'",
+    "dev": "echo 'Starting both web server and time tracking...' && start node web-server.js web 3000 && start node multi-user-runner.js start"
+  },
+  "dependencies": {
+    "@slack/web-api": "^6.12.0",
+    "dotenv": "^17.2.1",
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "slack",
+    "time-tracking",
+    "productivity",
+    "automation"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

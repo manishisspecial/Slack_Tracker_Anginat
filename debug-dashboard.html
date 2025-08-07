@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .data { background: #f9f9f9; padding: 10px; margin: 10px 0; border-radius: 3px; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Dashboard</h1>
+        
+        <div class="section">
+            <h3>API Status</h3>
+            <button class="btn-primary" onclick="testAPIs()">Test All APIs</button>
+            <div id="apiStatus"></div>
+        </div>
+
+        <div class="section">
+            <h3>Data Loading</h3>
+            <button class="btn-success" onclick="loadData()">Load Data</button>
+            <button class="btn-warning" onclick="clearData()">Clear Data</button>
+            <div id="dataStatus"></div>
+        </div>
+
+        <div class="section">
+            <h3>Button Functionality</h3>
+            <button class="btn-primary" onclick="testStartTracking()">Test Start Tracking</button>
+            <button class="btn-success" onclick="testExport()">Test Export</button>
+            <button class="btn-warning" onclick="testReport()">Test Report</button>
+            <div id="buttonStatus"></div>
+        </div>
+
+        <div class="section">
+            <h3>Console Log</h3>
+            <div id="consoleLog" class="log"></div>
+        </div>
+
+        <div class="section">
+            <h3>Current Data</h3>
+            <div id="currentData" class="data"></div>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logContainer = document.getElementById('consoleLog');
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="${type}">[${timestamp}] ${message}</span>`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog(args.join(' '), 'info');
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog(args.join(' '), 'error');
+        };
+
+        async function testAPIs() {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.innerHTML = '<p>Testing APIs...</p>';
+
+            try {
+                // Test data API
+                console.log('Testing /api/data...');
+                const dataResponse = await fetch('/api/data');
+                const data = await dataResponse.json();
+                console.log('Data API response:', data.length, 'entries');
+
+                // Test status API
+                console.log('Testing /api/status...');
+                const statusResponse = await fetch('/api/status');
+                const status = await statusResponse.json();
+                console.log('Status API response:', status);
+
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Data API: ${data.length} entries loaded</p>
+                        <p>✅ Status API: ${status.is_tracking ? 'Tracking Active' : 'Connected'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('API test failed:', error);
+                statusDiv.innerHTML = `<div class="error">❌ API test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function loadData() {
+            const statusDiv = document.getElementById('dataStatus');
+            statusDiv.innerHTML = '<p>Loading data...</p>';
+
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                const today = new Date().toISOString().split('T')[0];
+                const todayLogs = data.filter(log => log.timestamp.startsWith(today));
+                
+                const totalMinutes = todayLogs.reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+                const activeMinutes = todayLogs.filter(log => log.presence === 'active')
+                    .reduce((sum, log) => sum + (log.duration_from_last || 0), 0);
+
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Data loaded successfully!</p>
+                        <p>Total entries: ${data.length}</p>
+                        <p>Today's entries: ${todayLogs.length}</p>
+                        <p>Total time today: ${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m</p>
+                        <p>Active time today: ${Math.floor(activeMinutes / 60)}h ${activeMinutes % 60}m</p>
+                    </div>
+                `;
+
+                // Update current data display
+                document.getElementById('currentData').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Data loading failed:', error);
+                statusDiv.innerHTML = `<div class="error">❌ Data loading failed: ${error.message}</div>`;
+            }
+        }
+
+        function clearData() {
+            document.getElementById('dataStatus').innerHTML = '';
+            document.getElementById('currentData').innerHTML = '';
+            console.log('Data cleared');
+        }
+
+        async function testStartTracking() {
+            const statusDiv = document.getElementById('buttonStatus');
+            statusDiv.innerHTML = '<p>Testing start tracking...</p>';
+
+            try {
+                const response = await fetch('/api/start-tracking', { method: 'POST' });
+                const result = await response.json();
+                console.log('Start tracking result:', result);
+                
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Start tracking test successful!</p>
+                        <p>Message: ${result.message}</p>
+                        <p>Is running: ${result.is_running}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Start tracking test failed:', error);
+                statusDiv.innerHTML = `<div class="error">❌ Start tracking test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testExport() {
+            const statusDiv = document.getElementById('buttonStatus');
+            statusDiv.innerHTML = '<p>Testing export...</p>';
+
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                
+                const headers = ['timestamp', 'presence', 'status_text', 'project', 'duration_from_last'];
+                const csvRows = [headers.join(',')];
+                
+                data.forEach(log => {
+                    const row = [
+                        log.timestamp,
+                        log.presence,
+                        `"${(log.status_text || '').replace(/"/g, '""')}"`,
+                        `"${log.project.replace(/"/g, '""')}"`,
+                        log.duration_from_last || 0
+                    ];
+                    csvRows.push(row.join(','));
+                });
+                
+                const csvContent = csvRows.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `debug_export_${Date.now()}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Export test successful!</p>
+                        <p>Exported ${data.length} entries to CSV</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Export test failed:', error);
+                statusDiv.innerHTML = `<div class="error">❌ Export test failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testReport() {
+            const statusDiv = document.getElementById('buttonStatus');
+            statusDiv.innerHTML = '<p>Testing report...</p>';
+
+            try {
+                const response = await fetch('/api/report');
+                const report = await response.json();
+                console.log('Report result:', report);
+                
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Report test successful!</p>
+                        <p>Date: ${report.date}</p>
+                        <p>Total minutes: ${report.total_minutes}</p>
+                        <p>Entries: ${report.entries}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Report test failed:', error);
+                statusDiv.innerHTML = `<div class="error">❌ Report test failed: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            console.log('Debug dashboard loaded');
+            testAPIs();
+            loadData();
+        };
+    </script>
+</body>
+</html> 
